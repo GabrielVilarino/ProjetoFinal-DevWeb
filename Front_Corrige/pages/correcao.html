@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envio de Dados</title>
+    <link rel="shortcut icon" href="/img/corrige.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/correcao.css">
+</head>
+<body>
+    <a href="/index.html"><img src="/img/voltar.png" alt="icone-para-voltar" class="voltar"></a>
+    <form id="upload-form">
+        <div class="titulo-container">
+            <img src="/img/exame.png" alt="Ícone de Correção de Prova">
+            <h1>Correção de Prova</h1>
+        </div>
+
+        <label for="matricula">Matrícula:</label>
+        <input type="text" id="matricula" name="matricula" required><br>
+
+        <label for="materia">Matéria:</label>
+        <input type="text" id="materia" name="materia" required><br>
+
+        <label for="alternativas">Alternativas Corretas (separadas por vírgula):</label>
+        <input type="text" id="alternativas" name="alternativas" required><br>
+        
+        <label for="prova">Prova:</label>
+        <select id="prova" name="prova" required>
+            <option value="">Selecione a prova</option>
+            <option value="prova_1">Prova 1</option>
+            <option value="prova_2">Prova 2</option>
+            <option value="prova_3">Prova 3</option>
+            <option value="prova_4">Prova 4</option>
+        </select>
+
+        <label for="arquivo">Gabarito da Prova:</label>
+        <input type="file" id="arquivo" name="arquivo" required><br>
+
+        <div class="form-buttons">
+            <button type="submit">Corrigir</button>
+            <button type="button" id="btnEnviar">Enviar</button>
+        </div>
+    </form>
+
+    <div class="resultado" id="resultado" style="display: none;">
+        <label for="questoes-acertadas" id="questoesAcertadas">Questões Acertadas: 0</label>
+        <label for="questoes-erradas" id="questoesErradas">Questões Erradas: 0</label>
+        <label for="pontuacao" id="pontuacao">Pontuação: 0</label>
+    </div>
+
+    <script src="/js/correcao.js"></script>
+</body>
+</html>
