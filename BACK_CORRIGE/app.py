@@ -16,6 +16,18 @@ app.add_middleware(
 
 @app.get("/login")
 def login(matricula: str, senha: str):
+    """
+    Realiza o login verificando a matrícula e a senha no banco de dados.
+
+    Parâmetros:
+    - matricula (str): Matrícula do usuário.
+    - senha (str): Senha do usuário.
+
+    Retorna:
+    - True se o login for bem-sucedido.
+    - False se as credenciais forem inválidas.
+    - Lança uma exceção HTTP 500 em caso de erro.
+    """
     try:
         query = '''
             SELECT matricula
@@ -39,6 +51,18 @@ def login(matricula: str, senha: str):
 
 @app.get("/busca_aluno")
 def busca_aluno(matricula: str | None = None):
+    """
+    Busca informações de alunos e suas notas. Se a matrícula for fornecida, 
+    retorna os dados do aluno correspondente, caso contrário, retorna os dados de todos os alunos.
+
+    Parâmetros:
+    - matricula (str | None): Matrícula do aluno. Opcional.
+
+    Retorna:
+    - Lista de dicionários contendo o nome do aluno, a matéria e suas notas.
+    - Lança uma exceção HTTP 404 se o aluno não for encontrado.
+    - Lança uma exceção HTTP 500 em caso de erro.
+    """
     try:
         query = '''
             SELECT a.nome,
@@ -85,6 +109,19 @@ def busca_aluno(matricula: str | None = None):
 
 @app.get("/dados_alunos")
 def dados_aluno(matricula: str | None = None):
+    """
+    Busca informações básicas de alunos, como nome, turma e matéria. 
+    Se a matrícula for fornecida, retorna os dados do aluno correspondente; 
+    caso contrário, retorna os dados de todos os alunos.
+
+    Parâmetros:
+    - matricula (str | None): Matrícula do aluno. Opcional.
+
+    Retorna:
+    - Lista de dicionários contendo o nome, turma e matéria do aluno.
+    - Lança uma exceção HTTP 404 se o aluno não for encontrado.
+    - Lança uma exceção HTTP 500 em caso de erro.
+    """
     try:
         query = '''
             SELECT nome,
@@ -123,7 +160,23 @@ def dados_aluno(matricula: str | None = None):
 
 @app.post("/cadastro_aluno")
 def cadastro(matricula: str, nome:str, materia:str, turma:str):
+    """
+    Cadastra um novo aluno no banco de dados e adiciona seu histórico acadêmico.
 
+    Parâmetros:
+    - matricula (str): Matrícula do aluno.
+    - nome (str): Nome do aluno.
+    - materia (str): Matéria associada ao aluno.
+    - turma (str): Turma do aluno.
+
+    Processos:
+    - Insere os dados do aluno na tabela 'alunos'.
+    - Adiciona a matrícula e a matéria na tabela 'historico'.
+    
+    Retorna:
+    - Mensagem de sucesso se o aluno for cadastrado corretamente.
+    - Lança exceções HTTP 404 ou 500 em caso de erro.
+    """
     query = """
             INSERT INTO devweb.alunos (matricula, nome, materia, turma)
             VALUES (:matricula, :nome, :materia, :turma)
@@ -161,7 +214,21 @@ def cadastro(matricula: str, nome:str, materia:str, turma:str):
 
 @app.put("/update_aluno")
 def update_aluno(matricula: str, nome: str, materia: str, turma: str):
+    """
+    Atualiza as informações de um aluno no banco de dados, incluindo nome, matéria e turma.
+    Também atualiza a matéria correspondente no histórico do aluno.
 
+    Parâmetros:
+    - matricula (str): Matrícula do aluno.
+    - nome (str): Novo nome do aluno.
+    - materia (str): Nova matéria do aluno.
+    - turma (str): Nova turma do aluno.
+
+    Retorna:
+    - Mensagem de sucesso se o aluno for atualizado corretamente.
+    - Lança exceções HTTP 404 se o aluno não for encontrado ou houver erro ao atualizar.
+    - Lança exceção HTTP 500 em caso de erro interno.
+    """
     query = """
             UPDATE devweb.alunos
             SET
@@ -201,14 +268,27 @@ def update_aluno(matricula: str, nome: str, materia: str, turma: str):
         print(e)
         raise HTTPException(status_code=500, detail="Erro interno do servidor.")
     
-    return {'message': 'Aluno atualizado com sucesso'}
-    
 
 @app.post("/correcao")
 async def correcao_prova(
     alternativas: List[str] = Form(...),
     arquivo: UploadFile = File(None)
 ):
+    """
+    Corrige uma prova com base nas alternativas fornecidas e um arquivo de imagem opcional.
+
+    Parâmetros:
+    - alternativas (List[str]): Lista de alternativas selecionadas pelo aluno.
+    - arquivo (UploadFile | None): Arquivo de imagem da prova para correção (opcional).
+
+    Retorna:
+    - Dicionário contendo:
+      - 'respostas_corretas': Lista de respostas corretas, se houver.
+      - 'respostas_erradas': Lista de respostas incorretas, se houver.
+      - 'pontuacao': Pontuação total da prova.
+      
+    Lança exceção HTTP 500 em caso de erro.
+    """
     try:
         data = {}
 
@@ -234,8 +314,21 @@ async def correcao_prova(
     
 
 @app.put("/inserir_nota")
-def cadastro(matricula: str, materia:str, pontuacao:str, prova:str):
+def inserir_nota(matricula: str, materia:str, pontuacao:str, prova:str):
+    """
+    Insere ou atualiza a nota de uma prova específica para um aluno em uma determinada matéria.
 
+    Parâmetros:
+    - matricula (str): Matrícula do aluno.
+    - materia (str): Matéria em que a prova foi realizada.
+    - pontuacao (str): Pontuação obtida na prova.
+    - prova (str): Nome da prova (ex: prova_1, prova_2).
+
+    Retorna:
+    - Mensagem de sucesso se a nota for inserida ou atualizada corretamente.
+    - Lança exceções HTTP 404 se o registro não for encontrado.
+    - Lança exceção HTTP 500 em caso de erro interno.
+    """
     query = f"""
             UPDATE devweb.historico
             SET
@@ -265,6 +358,21 @@ def cadastro(matricula: str, materia:str, pontuacao:str, prova:str):
 
 @app.delete("/delete_aluno")
 def delete_aluno(matricula: str):
+    """
+    Exclui um aluno e seu histórico do banco de dados com base na matrícula.
+
+    Parâmetros:
+    - matricula (str): Matrícula do aluno a ser deletado.
+
+    Processo:
+    - Exclui o histórico do aluno da tabela 'historico'.
+    - Exclui o registro do aluno da tabela 'alunos' se o histórico for removido com sucesso.
+
+    Retorna:
+    - Mensagem de sucesso se o aluno e seu histórico forem deletados corretamente.
+    - Lança exceção HTTP 404 se o aluno ou o histórico não forem encontrados.
+    - Lança exceção HTTP 500 em caso de erro interno.
+    """
     try:
         query = '''
             DELETE FROM devweb.historico
